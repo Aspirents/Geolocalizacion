@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/contenedor"
+    android:background="@android:color/background_light"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.eurfrandej.geolocalizacion.Form">
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="168dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="421dp"
+        android:background="@color/colorPrimary"
+        android:text="Enviar"
+        android:textColor="#ffffffff"
+        android:textColorLink="?attr/colorBackgroundFloating"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.689" />
+
+    <RadioGroup
+        android:layout_width="325dp"
+        android:layout_height="369dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/background_light"
+        app:layout_constraintBottom_toTopOf="@+id/button2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.637"
+        app:layout_constraintHorizontal_bias="0.504">
+
+        <RadioButton
+            android:id="@+id/radioButton4"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"
+            android:background="@android:color/background_light"
+            android:shadowColor="@color/common_google_signin_btn_text_light_focused"
+            android:text="Gas"
+            android:textSize="15dp" />
+
+        <RadioButton
+            android:id="@+id/radioButton2"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"
+            android:background="@android:color/background_light"
+            android:shadowColor="@color/common_google_signin_btn_text_light_focused"
+            android:text="Basura"
+            android:textSize="15dp" />
+
+        <RadioButton
+            android:id="@+id/radioButton"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"
+            android:background="@android:color/background_light"
+            android:shadowColor="@color/common_google_signin_btn_text_light_focused"
+            android:textSize="15dp"
+            android:text="Gasolina" />
+
+        <RadioButton
+            android:id="@+id/radioButton3"
+            android:layout_width="match_parent"
+            android:layout_height="85dp"
+            android:background="@android:color/background_light"
+            android:shadowColor="@color/common_google_signin_btn_text_light_focused"
+            android:textSize="15dp"
+            android:text="Aguas Residuales" />
+
+    </RadioGroup>
+
+
+</android.support.constraint.ConstraintLayout>
+

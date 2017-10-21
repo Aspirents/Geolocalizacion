@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Geolocalizacion</string>
+    <string name="title_activity_ventana_mapa">Map</string>
+    <string name="title_activity_formulario">Formulario</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+</resources>
