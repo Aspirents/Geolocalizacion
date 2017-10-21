@@ -1,11 +1,15 @@
 package com.example.eurfrandej.geolocalizacion;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.GpsSatellite;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,6 +17,9 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,6 +27,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -46,27 +55,108 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ventana_mapa);
+
+        setTitle("Mapa de olores");
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+
+        Button button = (Button) findViewById(R.id.button3);
+
+       button.setOnClickListener(new View.OnClickListener() {
+
+
+           @Override
+           public void onClick(View v) {
+
+
+              try
+              {
+
+
+                  mi_ubicacion();
+
+
+              }catch(Exception e)
+               {
+
+               }
+//
+           }
+       });
+
+
+
     }
 
 
+    public void aceptar() {
+
+        Intent i = new Intent(getApplicationContext(), VentanaMapa.class );
+        startActivity(i);
+
+        Toast t=Toast.makeText(this," Gracias por agregar este marcador.", Toast.LENGTH_SHORT);
+        t.show();
+        return;
+
+    }
+
+    public void cancelar() {
+        finish();
+    }
+
+
+    public void aceptarU() {
+
+        Intent i = new Intent(getApplicationContext(), VentanaMapa.class );
+        startActivity(i);
+
+        Toast t=Toast.makeText(this," Gracias por agregar este marcador.", Toast.LENGTH_SHORT);
+        t.show();
+        return;
+
+    }
+
+    public void cancelarU() {
+        finish();
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
 
-        CrearMapa(googleMap);
+        final AlertDialog.Builder dialogo1 = new AlertDialog.Builder(this);
+        dialogo1.setTitle("Atención");
+        dialogo1.setMessage("No pude acceder a tu GPS");
+        dialogo1.setCancelable(false);
+        dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                aceptarU();
+            }
+        });
+        dialogo1.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                cancelarU();
+            }
+        });
+
+        try {
+
+            CrearMapa(googleMap);
+
+        }catch (Exception e){
+
+        }
+
 
 
     }
-
-
-
-
-
 
 
     public void CrearMapa (GoogleMap googleMap){
@@ -182,7 +272,7 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
                         .position(MiUbicacion)
                         .title("Estoy aqui")
                         .snippet("Esta es la direccion: " + direccion)
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher_round))
 
                 );
 
@@ -192,11 +282,24 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
                         .position(MiUbicacion)
                         .title("Estoy aqui")
                         .snippet("Actualmente en un monte")
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher_round))
 
                 );
             }
+
+            LatLng center = MiUbicacion;
+            int radius = 40;
+
+
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(center)
+                    .radius(radius)
+                    .strokeColor(Color.parseColor("#0D47A1"))
+                    .strokeWidth(4)
+                    .fillColor(Color.argb(32, 33, 150, 243));
+
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MiUbicacion, 17) );
+            Circle circle = mMap.addCircle(circleOptions);
 
         }
     }
@@ -232,18 +335,37 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
 
 
     private void mi_ubicacion(){
+
+        final AlertDialog.Builder dialogo1 = new AlertDialog.Builder(this);
+        dialogo1.setTitle("Atención");
+        dialogo1.setMessage("No pude acceder a tu GPS");
+        dialogo1.setCancelable(false);
+        dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                aceptar();
+            }
+        });
+        dialogo1.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                cancelar();
+            }
+        });
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED)
         {
-            return;
+            dialogo1.show();
+
+
         }
 
         //Creo la variable para administrar la ubicacion y los servicios
 
         LocationManager Administrar_ubicacion = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+
         //Pido la ultima ubicación conocida por gps
-        Location ubicacion = Administrar_ubicacion.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location ubicacion = Administrar_ubicacion.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER );
 
         actualizar_ubicacion(ubicacion);
 
