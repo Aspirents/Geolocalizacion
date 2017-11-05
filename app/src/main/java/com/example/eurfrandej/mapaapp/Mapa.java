@@ -1,4 +1,4 @@
-package com.example.eurfrandej.geolocalizacion;
+package com.example.eurfrandej.mapaapp;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.GpsSatellite;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,8 +16,7 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -26,7 +24,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -34,136 +34,73 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.text.BreakIterator;
 import java.util.List;
 import java.util.Locale;
 
-public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback {
+public class Mapa extends FragmentActivity implements OnMapReadyCallback {
 
 
+    private static final int MY_LOCATION_REQUEST_CODE = 1;
+    private static final int LOCATION_REQUEST_CODE = 1;
 
     //Variables
-
 
     private GoogleMap mMap;
     private Marker marcador;
 
-    double latitud=0.0;
-    double longitud=0.0;
+    double latitud = 0.0;
+    double longitud = 0.0;
+
+
+    double longitudGPS, latitudGPS;
+    double longitudNetwork, latitudNetwork;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ventana_mapa);
+        setContentView(R.layout.activity_mapa);
 
         setTitle("Mapa de olores");
 
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
 
 
-        Button button = (Button) findViewById(R.id.button3);
-
-       button.setOnClickListener(new View.OnClickListener() {
-
-
-           @Override
-           public void onClick(View v) {
-
-
-              try
-              {
-
-
-                  mi_ubicacion();
-
-
-              }catch(Exception e)
-               {
-
-               }
-//
-           }
-       });
-
-
-
     }
 
-
-    public void aceptar() {
-
-        Intent i = new Intent(getApplicationContext(), VentanaMapa.class );
-        startActivity(i);
-
-        Toast t=Toast.makeText(this," Gracias por agregar este marcador.", Toast.LENGTH_SHORT);
-        t.show();
-        return;
-
-    }
-
-    public void cancelar() {
-        finish();
-    }
-
-
-    public void aceptarU() {
-
-        Intent i = new Intent(getApplicationContext(), VentanaMapa.class );
-        startActivity(i);
-
-        Toast t=Toast.makeText(this," Gracias por agregar este marcador.", Toast.LENGTH_SHORT);
-        t.show();
-        return;
-
-    }
-
-    public void cancelarU() {
-        finish();
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
 
 
-        final AlertDialog.Builder dialogo1 = new AlertDialog.Builder(this);
-        dialogo1.setTitle("Atención");
-        dialogo1.setMessage("No pude acceder a tu GPS");
-        dialogo1.setCancelable(false);
-        dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogo1, int id) {
-                aceptarU();
-            }
-        });
-        dialogo1.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogo1, int id) {
-                cancelarU();
-            }
-        });
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        try {
 
-            CrearMapa(googleMap);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
 
-        }catch (Exception e){
 
+            mi_ubicacion();
+            mMap.setMyLocationEnabled(true);
+
+
+
+        } else {
+            // Solicitar permiso
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_REQUEST_CODE);
         }
 
 
 
-    }
-
-
-    public void CrearMapa (GoogleMap googleMap){
-
-        mMap = googleMap;
-
-        mi_ubicacion();
 
 
         mMap.setOnMapClickListener( new GoogleMap.OnMapClickListener() {
@@ -172,8 +109,6 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
 
             public void onMapClick(LatLng Nueva_Ubicación)
             {
-
-                mi_ubicacion();
 
                 mMap.addMarker(new MarkerOptions()
                         .position(Nueva_Ubicación)
@@ -189,8 +124,16 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
                 //                 x.setContentView(R.layout.form);
 
 
-                Intent i = new Intent(getApplicationContext(), Form.class );
+                Intent i = new Intent(getApplicationContext(), Formulario.class );
+
+                float Lat = (float) Nueva_Ubicación.latitude;
+                float Long = (float) Nueva_Ubicación.longitude;
+
+               i.putExtra("Latitud", Lat);
+                i.putExtra("Longitud", Long );
+
                 startActivity(i);
+
                 //setContentView(R.layout.activity_formulario);
 
 //
@@ -205,33 +148,33 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
 
 
 
-
     }
 
 
 
-    private void Agregar_marcador(double latitud, double longitud) {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == MY_LOCATION_REQUEST_CODE) {
+            if (permissions.length == 1 &&
+                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                mMap.setMyLocationEnabled(true);
 
-        //Variable para pedir coordenadas
-        LatLng coordenadas = new LatLng(latitud, longitud);
-
-        //Variable para pedir ubicación y centrar la camara ahi
-        CameraUpdate mi_ubicación = CameraUpdateFactory.newLatLngZoom(coordenadas, 16);
-
-
-        if(marcador!= null){ marcador.remove(); }
-
-
-        //Añado el marcador:
-
-        marcador = mMap.addMarker( new MarkerOptions()
-                        .position(coordenadas).title("Mi ubicación actual")
-                // .icon(BitmapDescriptorFactory.fromResource(Ri.mipmap.ic_launcher))
-        );
-
-        //Muevo la camara
-
-        mMap.animateCamera(mi_ubicación);
+            } else {
+                // Permission was denied. Display an error message.
+                Toast.makeText(this, "Error de permisos", Toast.LENGTH_LONG).show();
+            }
+        }
 
     }
 
@@ -272,7 +215,7 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
                         .position(MiUbicacion)
                         .title("Estoy aqui")
                         .snippet("Esta es la direccion: " + direccion)
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher_round))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher))
 
                 );
 
@@ -282,24 +225,11 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
                         .position(MiUbicacion)
                         .title("Estoy aqui")
                         .snippet("Actualmente en un monte")
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher_round))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher))
 
                 );
             }
-
-            LatLng center = MiUbicacion;
-            int radius = 40;
-
-
-            CircleOptions circleOptions = new CircleOptions()
-                    .center(center)
-                    .radius(radius)
-                    .strokeColor(Color.parseColor("#0D47A1"))
-                    .strokeWidth(4)
-                    .fillColor(Color.argb(32, 33, 150, 243));
-
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MiUbicacion, 17) );
-            Circle circle = mMap.addCircle(circleOptions);
 
         }
     }
@@ -335,37 +265,18 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
 
 
     private void mi_ubicacion(){
-
-        final AlertDialog.Builder dialogo1 = new AlertDialog.Builder(this);
-        dialogo1.setTitle("Atención");
-        dialogo1.setMessage("No pude acceder a tu GPS");
-        dialogo1.setCancelable(false);
-        dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogo1, int id) {
-                aceptar();
-            }
-        });
-        dialogo1.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogo1, int id) {
-                cancelar();
-            }
-        });
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED)
         {
-            dialogo1.show();
-
-
+            return;
         }
 
         //Creo la variable para administrar la ubicacion y los servicios
 
         LocationManager Administrar_ubicacion = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-
         //Pido la ultima ubicación conocida por gps
-        Location ubicacion = Administrar_ubicacion.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER );
+        Location ubicacion = Administrar_ubicacion.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         actualizar_ubicacion(ubicacion);
 
@@ -380,7 +291,6 @@ public class VentanaMapa extends FragmentActivity implements OnMapReadyCallback 
 
 
     }
-
 
 
 }

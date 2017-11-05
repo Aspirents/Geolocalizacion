@@ -1,4 +1,4 @@
-package com.example.eurfrandej.geolocalizacion;
+package com.example.eurfrandej.mapaapp;
 
 import org.junit.Test;
 
